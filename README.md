@@ -3,46 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jednostavna Stranica s Gumbima</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin-top: 50px;
-            background-color: #f0f0f0;
-        }
-        button {
-            padding: 10px 20px;
-            font-size: 16px;
-            margin: 10px;
-            cursor: pointer;
-        }
-        #indicator {
-            margin-top: 20px;
-            font-size: 24px;
-            color: #333;
-        }
-    </style>
+    <title>STM32 Upravljačka Aplikacija</title>
 </head>
 <body>
-    <h1>Gumbi i Indikator</h1>
-    <button id="button1">Gumb 1</button>
-    <button id="button2">Gumb 2</button>
+    <h1>Upravljanje STM32 Pločicom</h1>
+    <button id="setValue">Postavi Vrijednost</button>
+    <input type="number" id="valueInput" placeholder="Unesite vrijednost">
 
-    <div id="indicator">Pritisnite gumb!</div>
+    <h2>Podaci sa senzora</h2>
+    <div id="sensorData">Čekam podatke...</div>
 
     <script>
-        const button1 = document.getElementById('button1');
-        const button2 = document.getElementById('button2');
-        const indicator = document.getElementById('indicator');
-
-        button1.addEventListener('click', () => {
-            indicator.textContent = 'Pritisnut je Gumb 1';
+        document.getElementById('setValue').addEventListener('click', () => {
+            const value = document.getElementById('valueInput').value;
+            fetch('/set-value', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ value: value }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+            })
+            .catch(error => console.error('Greška:', error));
         });
 
-        button2.addEventListener('click', () => {
-            indicator.textContent = 'Pritisnut je Gumb 2';
-        });
+        setInterval(() => {
+            fetch('/sensor-data')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('sensorData').textContent = `Vrijednost senzora: ${data.value}`;
+                })
+                .catch(error => console.error('Greška:', error));
+        }, 1000); // Ažuriranje svakih 1 sekundu
     </script>
 </body>
 </html>
